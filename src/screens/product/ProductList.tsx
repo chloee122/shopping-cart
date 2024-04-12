@@ -1,27 +1,20 @@
-import data from "../../../data/products.json";
-import useAppContext from "../../hooks/useAppContext";
 import getImage from "../../utils/image-util";
-
-interface Product {
-  sku: string;
-  name: string;
-  price: number;
-}
+import useProductContext from "../../hooks/useProductContext";
+import type { Product } from "../../common/types";
+import useCartContext from "../../hooks/useCartContext";
 
 export default function ProducList() {
-  const { dispatch, REDUCER_ACTIONS, cart } = useAppContext();
+  const { dispatch, REDUCER_ACTIONS, cart } = useCartContext();
+  const { products } = useProductContext();
 
   const addProduct = (product: Product) => {
-    const containsProduct = cart.some((p) => p.sku === product.sku);
-    if (containsProduct) {
-      dispatch({ type: REDUCER_ACTIONS.ADD_MORE, payload: product });
-    }
-    if (!containsProduct) {
-      dispatch({ type: REDUCER_ACTIONS.ADD_NEW, payload: product });
-    }
+    dispatch({
+      type: REDUCER_ACTIONS.ADD,
+      payload: { ...product, qty: 1 },
+    });
   };
 
-  const renderedProducts = data.products.map((product) => {
+  const renderedProducts = products.map((product) => {
     const isAdded = cart.some(
       (addedProduct) => addedProduct.sku === product.sku
     );

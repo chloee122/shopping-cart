@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import useAppContext from "../hooks/useAppContext";
+import useCartContext from "../hooks/useCartContext";
 
 export default function Header() {
-  const { totalItem, totalPrice } = useAppContext();
+  const { totalItem, totalPrice } = useCartContext();
 
   return (
     <div className="flex justify-between border-b p-3 items-center">

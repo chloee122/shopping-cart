@@ -1,34 +1,19 @@
-import useAppContext from "../../hooks/useAppContext";
-import { GoX } from "react-icons/go";
+import useCartContext from "../../hooks/useCartContext";
+import CartListItem from "./CartListItem";
 
 export default function Cart() {
-  const { cart, adjustAmount, removeProduct } = useAppContext();
+  const { cart, dispatch, REDUCER_ACTIONS } = useCartContext();
 
-  const numberOption = Array.from({ length: 10 }, (_, i) => i + 1);
-
-  const renderedAddedProducts = cart.map((product) => {
-    const productTotal = product.amount * product.price;
+  const renderedCartItems = cart.map((item) => {
     return (
-      <div key={product.sku} className="grid grid-cols-6">
-        <img src={`src/images/${product.sku}.jpg`} />
-
-        <div>{product.name}</div>
-        <div>${product.price}</div>
-        <select id={product.sku} value={product.amount} onChange={adjustAmount}>
-          {numberOption.map((number) => (
-            <option key={number}>{number}</option>
-          ))}
-        </select>
-        <div>{productTotal}</div>
-        <div
-          className="flex flex-cols items-center border"
-          onClick={() => removeProduct(product.sku)}
-        >
-          <GoX />
-        </div>
-      </div>
+      <CartListItem
+        key={item.sku}
+        item={item}
+        dispatch={dispatch}
+        REDUCER_ACTIONS={REDUCER_ACTIONS}
+      />
     );
   });
 
-  return <div className="">{renderedAddedProducts}</div>;
+  return <div>{renderedCartItems}</div>;
 }
