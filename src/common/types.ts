@@ -1,9 +1,9 @@
-export interface Product {
+export interface ProductItem {
     sku: string;
     name: string;
     price: number;
   }
 
-  export interface Cart extends Product {
+export interface CartItem extends ProductItem {
     qty: number;
-  } 
+  }

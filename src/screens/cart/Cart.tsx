@@ -2,7 +2,7 @@ import useCartContext from "../../hooks/useCartContext";
 import CartListItem from "./CartListItem";
 
 export default function Cart() {
-  const { cart, dispatch, REDUCER_ACTIONS } = useCartContext();
+  const { cart, dispatch } = useCartContext();
 
   const renderedCartItems = cart.map((item) => {
     return (
@@ -10,7 +10,6 @@ export default function Cart() {
         key={item.sku}
         item={item}
         dispatch={dispatch}
-        REDUCER_ACTIONS={REDUCER_ACTIONS}
       />
     );
   });

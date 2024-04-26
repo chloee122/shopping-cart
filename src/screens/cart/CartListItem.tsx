@@ -1,21 +1,17 @@
 import getImage from "../../utils/image-util";
-import type { Cart } from "../../common/types";
+import type { CartItem } from "../../common/types";
 import { Dispatch, ReactElement } from "react";
-import type { CartAction, CartActionKindType } from "../../context/CartContext";
+import type { CartAction } from "../../context/CartContext";
+import { CartActionKind } from "../../common/constants";
 
 interface CastListItemProps {
-  item: Cart;
+  item: CartItem;
   dispatch: Dispatch<CartAction>;
-  REDUCER_ACTIONS: CartActionKindType;
 }
 
 const HIGHEST_CART_QUANTITY = 20;
 
-export default function CartListItem({
-  item,
-  dispatch,
-  REDUCER_ACTIONS,
-}: CastListItemProps) {
+export default function CartListItem({ item, dispatch }: CastListItemProps) {
   const itemTotal: number = item.qty * item.price;
 
   const highestQty: number =
@@ -33,14 +29,14 @@ export default function CartListItem({
 
   const adjustQty = (e: React.ChangeEvent<HTMLSelectElement>) => {
     dispatch({
-      type: REDUCER_ACTIONS.QUANTITY,
+      type: CartActionKind.QUANTITY,
       payload: { ...item, qty: Number(e.target.value) },
     });
   };
 
   const removeItem = () => {
     dispatch({
-      type: REDUCER_ACTIONS.REMOVE,
+      type: CartActionKind.REMOVE,
       payload: item,
     });
   };

@@ -1,12 +1,15 @@
 import { createContext, useState, ReactElement, useEffect } from "react";
-import type { Product } from "../common/types";
+import type { ProductItem } from "../common/types";
+import * as api from "../api/api";
 
 export interface ProductContextType {
-  products: Product[];
+  products: ProductItem[];
+  error: string | null;
 }
 
 const initProductContext: ProductContextType = {
   products: [],
+  error: null,
 };
 
 interface ProductProviderProps {
@@ -15,25 +18,38 @@ interface ProductProviderProps {
 
 const ProductContext = createContext<ProductContextType>(initProductContext);
 export function ProductProvider({ children }: ProductProviderProps) {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductItem[]>([]);
+  const [error, setError] = useState<string | null>(null);
+
+  const getErrorMessage = (error: unknown): string => {
+    if (error instanceof Error) {
+      return error.message;
+    } else if (error && typeof error === "object" && "message" in error) {
+      return String(error.message);
+    } else if (typeof error === "string") {
+      return error;
+    } else {
+      return "Something went wrong.";
+    }
+  };
 
   useEffect(() => {
-    const fetchProducts = async () => {
+    const getProducts = async () => {
       try {
-        const data = await fetch("http://localhost:3500/products").then((res) =>
-          res.json()
-        );
-        return data;
+        setError(null);
+        const products = await api.getProducts();
+        setProducts(products);
       } catch (err) {
-        if (err instanceof Error) throw new Error("Error occured");
+        const errorMessage = getErrorMessage(err);
+        setError(errorMessage);
       }
     };
 
-    fetchProducts().then((p) => setProducts(p));
+    getProducts();
   }, []);
 
   return (
-    <ProductContext.Provider value={{ products }}>
+    <ProductContext.Provider value={{ products, error }}>
       {children}
     </ProductContext.Provider>
   );

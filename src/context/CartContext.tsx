@@ -1,20 +1,13 @@
 import { createContext, useReducer } from "react";
-import type { Cart } from "../common/types";
-
-enum CartActionKind {
-  ADD = "ADD",
-  QUANTITY = "QUANTITY",
-  REMOVE = "REMOVE",
-}
-
-export type CartActionKindType = typeof CartActionKind;
+import type { CartItem } from "../common/types";
+import { CartActionKind } from "../common/constants";
 
 export interface CartAction {
   type: CartActionKind;
-  payload: Cart;
+  payload: CartItem;
 }
 
-type CartState = { cart: Cart[] };
+type CartState = { cart: CartItem[] };
 
 const initCartState: CartState = {
   cart: [{ sku: "item0001", name: "Widget", price: 9.99, qty: 1 }],
@@ -25,12 +18,19 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
     case CartActionKind.ADD: {
       const { sku, name, price } = action.payload;
 
-      const filteredItems: Cart[] = state.cart.filter(
-        (item) => item.sku !== sku
-      );
-
-      const itemExists: Cart | undefined = state.cart.find(
-        (item) => item.sku === sku
+      const { filteredItems, itemExists } = state.cart.reduce(
+        (acc, item) => {
+          if (item.sku !== sku) {
+            acc.filteredItems.push(item);
+          } else {
+            acc.itemExists = item;
+          }
+          return acc;
+        },
+        {
+          filteredItems: [] as CartItem[],
+          itemExists: undefined as CartItem | undefined,
+        }
       );
 
       const qty = itemExists ? itemExists.qty + 1 : 1;
@@ -65,9 +65,8 @@ const cartReducer = (state: CartState, action: CartAction): CartState => {
 };
 
 export interface CartContextType {
-  cart: Cart[];
+  cart: CartItem[];
   dispatch: React.Dispatch<CartAction>;
-  REDUCER_ACTIONS: typeof CartActionKind;
   totalItem: number;
   totalPrice: number;
 }
@@ -79,7 +78,6 @@ interface CartProviderProps {
 const initCartContext: CartContextType = {
   cart: [],
   dispatch: () => {},
-  REDUCER_ACTIONS: CartActionKind,
   totalItem: 0,
   totalPrice: 0,
 };
@@ -94,8 +92,6 @@ export function CartProvider({ children }: CartProviderProps) {
     return itemA - itemB;
   });
 
-  const REDUCER_ACTIONS = CartActionKind;
-
   const totalItem = state.cart.reduce(
     (acc, product) => (acc += product.qty),
     0
@@ -107,9 +103,7 @@ export function CartProvider({ children }: CartProviderProps) {
   );
 
   return (
-    <CartContext.Provider
-      value={{ cart, dispatch, REDUCER_ACTIONS, totalItem, totalPrice }}
-    >
+    <CartContext.Provider value={{ cart, dispatch, totalItem, totalPrice }}>
       {children}
     </CartContext.Provider>
   );
