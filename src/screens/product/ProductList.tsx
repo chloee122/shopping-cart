@@ -1,16 +1,29 @@
-import data from "../../../data/products.json";
-import useAppContext from "../../hooks/useAppContext";
+import getImage from "../../utils/image-util";
+import useProductContext from "../../hooks/useProductContext";
+import type { ProductItem } from "../../common/types";
+import useCartContext from "../../hooks/useCartContext";
+import { CartActionKind } from "../../common/constants";
 
 export default function ProducList() {
-  const { addProduct, cart } = useAppContext();
+  const { dispatch, cart } = useCartContext();
+  const { products, error } = useProductContext();
 
-  const renderedProducts = data.products.map((product) => {
+  const addProduct = (product: ProductItem) => {
+    dispatch({
+      type: CartActionKind.ADD,
+      payload: { ...product, qty: 1 },
+    });
+  };
+
+  const renderedError = <div>{error}</div>;
+
+  const renderedProducts = products.map((product) => {
     const isAdded = cart.some(
       (addedProduct) => addedProduct.sku === product.sku
     );
     return (
       <div key={product.sku}>
-        <img src={`src/images/${product.sku}.jpg`} />
+        <img src={getImage(product.sku)} />
         <div>
           ${product.price} → {isAdded ? "item in Cart ✅" : null}
         </div>
@@ -24,5 +37,9 @@ export default function ProducList() {
       </div>
     );
   });
-  return <div className="flex justify-evenly">{renderedProducts}</div>;
+  return (
+    <div className="flex justify-evenly">
+      {error ? renderedError : renderedProducts}
+    </div>
+  );
 }
